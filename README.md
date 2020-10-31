@@ -1,6 +1,6 @@
 # GDG
 
-A new Flutter project.
+Projeto de estudo. Flutter + Firebase.
 
 ## Getting Started
 
