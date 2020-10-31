@@ -42,6 +42,6 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Necess√°rio acesso ao GPS para identifica√ß√£o da localiza√ß√£o</string>
+	<string>Necess·rio acesso ao GPS para identificaÁ„o da localizaÁ„o</string>
 </dict>
 </plist>

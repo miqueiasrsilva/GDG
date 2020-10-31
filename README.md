@@ -1,4 +1,4 @@
-# tintin
+# GDG
 
 A new Flutter project.
 
