@@ -1,5 +1,12 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:tintin/pages/create-account/create-account.page.dart';
+import 'package:tintin/pages/login/login.page.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
 
 class HomePage extends StatefulWidget {
@@ -9,18 +16,71 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  File file;
 
   Future<FirebaseUser> _handleCreateUser() async {
     final FirebaseUser user = (await _auth.createUserWithEmailAndPassword(
-            email: 'mi.ike@hotmail.com', password: '123456'))
+      email: '',
+      password: '',
+    ))
         .user;
     return user;
   }
 
   Future<FirebaseUser> _handleLogin() async {
-    final AuthResult auth = (await _auth.signInWithEmailAndPassword(
-        email: 'mi.ike@hotmail.com', password: '123456'));
-    return auth.user;
+    final AuthResult auth = await _auth.signInWithEmailAndPassword(
+      email: '',
+      password: '',
+    );
+    var user = auth.user;
+
+    UserUpdateInfo info = new UserUpdateInfo();
+    info.displayName = "Miqueias Rios";
+    info.photoUrl =
+        "http://www.lte-esafety.co.uk/wp-content/uploads/2015/06/avatar.png";
+    await user.updateProfile(info);
+
+    await user.reload();
+
+    /*final StorageReference storageRef =
+        FirebaseStorage.instance.ref().child(info.displayName + 'jpg');
+    final StorageUploadTask uploadTask = storageRef.putFile(
+      File(filePath),
+      StorageMetadata(
+        contentType: type + '/' + extension,
+      ),
+    );*/
+
+    /*final databaseReference = Firestore.instance;
+    await databaseReference.collection("books").document("1").setData({
+      'title': 'Mastering Flutter',
+      'description': 'Programming Guide for Dart'
+    });
+    DocumentReference ref = await databaseReference.collection("books").add({
+      'title': 'Flutter in Action',
+      'description': 'Complete Programming Guide to learn Flutter'
+    });
+    print(ref.documentID);
+    return null;*/
+    var image = await ImagePicker.pickImage(source: ImageSource.camera);
+
+    String fileName = info.displayName + '.jpg';
+
+    // TESTESTORAGE
+    StorageReference firebaseStorageRef =
+        FirebaseStorage.instance.ref().child('images/' + fileName);
+    StorageUploadTask uploadTask = firebaseStorageRef.putFile(image);
+    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+    setState(() {
+      file = image;
+      print("Profile Picture uploaded " + downloadUrl);
+      //Scaffold.of(context)
+      //    .showSnackBar(SnackBar(content: Text('Profile Picture Uploaded')));
+    });
+
+    //UserUpdateInfo().photoUrl = "http://www.lte-esafety.co.uk/wp-content/uploads/2015/06/avatar.png";
+    return user;
   }
 
   @override
@@ -50,13 +110,19 @@ class _HomePageState extends State<HomePage> {
               child: Container(
                 child: Column(
                   children: <Widget>[
+                    if (file != null)
+                      Image.file(
+                        file,
+                        width: 100,
+                        height: 100,
+                      ),
                     Container(
                       padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                       width: double.infinity,
                       child: RaisedButton(
                         padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
                         child: Text(
-                          "LOG IN WITH FACEBOOK",
+                          "LOG IN",
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -64,7 +130,11 @@ class _HomePageState extends State<HomePage> {
                         ),
                         color: Color(0xff006caa),
                         onPressed: () async {
-                          _handleLogin();
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LoginPage()));
+                          //await _handleLogin();
                         },
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
@@ -82,7 +152,7 @@ class _HomePageState extends State<HomePage> {
                         shape: StadiumBorder(),
                         textColor: Colors.white,
                         child: Text(
-                          'LOG IN WITH PHONE NUMBER',
+                          'DONT HAVE ACCOUNT?',
                           style: TextStyle(
                               fontSize: 20, fontWeight: FontWeight.bold),
                         ),
@@ -91,17 +161,24 @@ class _HomePageState extends State<HomePage> {
                             style: BorderStyle.solid,
                             width: 1),
                         onPressed: () async {
-                          _handleCreateUser();
-                          // LocationData currentLocation;
-                          // var location = new Location();
-                          // try {
-                          //   currentLocation = await location.getLocation();
-                          //   print(currentLocation.latitude);
-                          //   print(currentLocation.longitude);
-                          // } on Exception catch (e) {
-                          //   print(e);
-                          //   currentLocation = null;
-                          // }
+                          //await _handleLogin();
+
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => CreateAccountPage()));
+
+                          //await _handleCreateUser();
+                          /*LocationData currentLocation;
+                          var location = new Location();
+                          try {
+                            currentLocation = await location.getLocation();
+                            print(currentLocation.latitude);
+                            print(currentLocation.longitude);
+                          } on Exception catch (e) {
+                            print(e);
+                            currentLocation = null;
+                          }*/
                         },
                       ),
                     ),
