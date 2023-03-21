@@ -23,7 +23,7 @@ dependencies:
   firebase_storage: ^3.0.6
   cloud_firestore: ^0.12.9+5
   firebase_messaging: ^5.1.6
-  dio: 2.2.2
+  dio: ">=2.2.2 <6.0.0"
 
   flutter:
     sdk: flutter
